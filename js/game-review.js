@@ -8,6 +8,9 @@
   const uciOf = (m) => m.from + m.to + (m.promotion || '');
   const DEPTH = 11, TIME = 800;           // first pass over every position
   const DEEP_DEPTH = 14, DEEP_TIME = 2000; // second look at every move that seems wrong
+  const LINE_PLIES = 16; // eight moves each side
+  // Material for one side, in pawns (knight/bishop 3, rook 5, queen 9).
+  const lineMaterial = (game, color) => game.board().flat().reduce((n, p) => n + (p ? ({ p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 })[p.type] * (p.color === color ? 1 : -1) : 0), 0);
   const SYMBOL = { brilliant: '!!', great: '!', inaccuracy: '?!', mistake: '?', blunder: '??' };
   const SAMPLE = '[Event "Sample game"]\n[White "White"]\n[Black "Black"]\n[Result "0-1"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bc4 Nd4 4. Nxe5 Qg5 5. Nxf7 Qxg2 6. Rf1 Qxe4+ 7. Be2 Nf3# 0-1';
 
@@ -52,6 +55,7 @@
       this.token++;
       (this.engines || []).forEach((e) => e.destroy());
       this.engines = null;
+      this.lineEngine?.destroy(); this.lineEngine = null;
     }
 
     /* ── Loading a game ─────────────────────────────────── */
@@ -256,9 +260,8 @@
             <button class="btn btn-primary" data-review="next-key">Next key moment</button>
             <button class="btn btn-ghost" data-review="flip">Flip board</button>
           </div>
-          <div id="reviewLine" class="tc-line-box" hidden></div>
         </section>
-        <section class="tc-review-panel" id="reviewPanel">${s === 'review' ? this.panelHtml() : this.progressHtml()}</section>
+        <section class="tc-review-panel" id="reviewPanel"><div id="reviewLine" class="tc-line-box" hidden></div>${s === 'review' ? this.panelHtml() : this.progressHtml()}</section>
       </div>`;
       this.board = new BoardView(document.getElementById('reviewBoard'), { onSquare: (sq) => this.square(sq) });
       if (s !== 'review') this.progress();
@@ -461,10 +464,15 @@
       if (box) {
         box.hidden = !this.line;
         if (this.line) {
-          const l = this.line, note = l.index ? l.moves[l.index - 1].note : l.intro;
-          box.innerHTML = `<strong>${esc(l.title)}</strong><p>${esc(note)}</p>
+          const l = this.line, cur = l.index ? l.moves[l.index - 1] : null;
+          const done = l.index >= l.moves.length && !l.extending;
+          const list = l.moves.map((mv, k) => `<li class="${k === l.index - 1 ? 'current' : ''}${k >= l.index ? ' tc-later' : ''}"><b>${esc(mv.san)}</b> ${k < l.index ? esc(mv.note) : ''}</li>`).join('');
+          box.innerHTML = `<strong>${esc(l.title)}</strong><p>${esc(l.intro)}</p>
+            ${cur ? `<p class="tc-line-now"><b>${esc(cur.san)}:</b> ${esc(cur.note)} <em>${esc(this.lineScoreText(l, cur))}</em></p>` : ''}
+            ${done ? `<p class="tc-line-sum">${esc(this.lineSummary(l))}</p>` : ''}
+            <ol class="tc-line-list">${list}</ol>
             <div class="pattern-actions"><button class="btn btn-secondary" data-review="line-prev"${l.index ? '' : ' disabled'}>◀ Previous</button><button class="btn btn-secondary" data-review="line-next"${l.index >= l.moves.length ? ' disabled' : ''}>Next ▶</button><button class="btn btn-secondary" data-review="line-play">${this.lineTimer ? 'Pause' : 'Play'}</button><button class="btn btn-primary" data-review="back">Back to the game</button></div>
-            <span class="tc-fine">Move ${l.index} of ${l.moves.length}</span>`;
+            <span class="tc-fine">Move ${l.index} of ${l.moves.length}${l.extending ? ' · the engine is finding more moves…' : ''}</span>`;
         }
       }
       if (!review) return;
@@ -509,22 +517,60 @@
       if (i < 0) return;
       const L = this.lessonAt(i), m = this.game.moves[i], fen = this.game.positions[i];
       const line = which === 'best' ? (this.evals[i].pv.length ? this.evals[i].pv : [L.bestUci]) : [uciOf(m), ...(this.evals[i + 1].pv || [])];
-      const g = new Chess(fen), positions = [fen], moves = [];
-      for (const u of line.slice(0, 10)) {
-        const before = g.fen(), mv = g.move(parse(u));
-        if (!mv) break;
-        moves.push({ ...mv, note: T().narrate(before, mv, this.side || null, 'your opponent') });
-        positions.push(g.fen());
-        if (g.game_over()) break;
-      }
-      if (!moves.length) return;
-      this.line = {
+      const l = this.line = {
         title: which === 'best' ? `The better move: ${L.bestSan}` : `What ${L.san} allows`,
         intro: which === 'best' ? (L.better || L.why) : `${L.headline} ${L.why}`,
-        positions, moves, index: 1,
+        positions: [fen], moves: [], index: 1, mover: m.color, start: lineMaterial(new Chess(fen), m.color), extending: true,
       };
+      this.addLineMoves(l, line);
+      if (!l.moves.length) { this.line = null; return; }
+      document.getElementById('reviewPanel')?.scrollTo({ top: 0 });
       this.update();
       this.playLine();
+      this.extendLine(l);
+    }
+
+    // Append moves to a line, each with a plain sentence and the material count so far.
+    addLineMoves(l, ucis) {
+      const g = new Chess(l.positions[l.positions.length - 1]);
+      for (const u of ucis) {
+        if (l.moves.length >= LINE_PLIES || g.game_over()) break;
+        const before = g.fen(), mv = g.move(parse(u));
+        if (!mv) break;
+        l.moves.push({ ...mv, note: T().narrate(before, mv, this.side || null, 'your opponent'), score: lineMaterial(g, l.mover) - l.start, end: g.game_over() });
+        l.positions.push(g.fen());
+      }
+    }
+
+    // The stored engine line is short; keep asking the engine for the next move until the line is long enough.
+    async extendLine(l) {
+      try {
+        if (!this.lineEngine) { this.lineEngine = new StockfishEngine('review-line'); await this.lineEngine.init(); }
+        while (this.line === l && l.moves.length < LINE_PLIES && !l.moves[l.moves.length - 1].end) {
+          const r = await this.lineEngine.evaluate(l.positions[l.positions.length - 1], 12, 400);
+          if (this.line !== l || !r || !r.bestMove) break;
+          const n = l.moves.length;
+          this.addLineMoves(l, [r.bestMove]);
+          if (l.moves.length === n) break;
+          this.update();
+        }
+      } catch (_) { /* keep the moves we already have */ }
+      if (this.line === l) { l.extending = false; this.update(); }
+    }
+
+    lineScoreText(l, mv) {
+      const who = this.side ? (l.mover === this.side ? 'You are' : 'Your opponent is') : (l.mover === 'w' ? 'White is' : 'Black is');
+      const n = mv.score;
+      return n === 0 ? 'Material is even compared with before the move.' : n > 0 ? `${who} up ${n} point${n > 1 ? 's' : ''} of material so far.` : `${who} down ${-n} point${n < -1 ? 's' : ''} of material so far.`;
+    }
+
+    lineSummary(l) {
+      const last = l.moves[l.moves.length - 1], n = last.score;
+      const who = this.side ? (l.mover === this.side ? 'you' : 'your opponent') : (l.mover === 'w' ? 'White' : 'Black');
+      if (last.end) return `The line ends the game: ${last.san}.`;
+      if (n > 0) return `In the end ${who} won ${n} point${n > 1 ? 's' : ''} of material. Even if pieces were given up along the way, they came back with interest.`;
+      if (n < 0) return `In the end ${who} lost ${-n} point${n < -1 ? 's' : ''} of material — the sacrifice (or mistake) did not pay off in material.`;
+      return 'In the end material is even — the difference is in piece activity and position.';
     }
 
     lineStep(d) {
@@ -540,9 +586,10 @@
       if (!l) return;
       if (l.index >= l.moves.length) l.index = 0;
       this.lineTimer = setInterval(() => {
+        if (this.line === l && l.index >= l.moves.length && l.extending) return; // wait for the engine
         if (this.line !== l || l.index >= l.moves.length) { this.stopLineTimer(); this.update(); return; }
         l.index++;
-        if (l.index >= l.moves.length) this.stopLineTimer();
+        if (l.index >= l.moves.length && !l.extending) this.stopLineTimer();
         this.update();
       }, 2200);
       this.update();

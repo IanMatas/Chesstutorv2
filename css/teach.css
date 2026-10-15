@@ -210,3 +210,7 @@
     .tc-headline { font-size: 17px; }
 }
 @media (prefers-reduced-motion: reduce) { .tc-spinner { animation: none; } }
+/* Shorter cards: the explanation opens on demand */
+.tc-more { margin-top: 4px; }
+.tc-more > summary { color: var(--learn-green); font-weight: 600; font-size: 13px; }
+.tc-more > * + * { margin-top: 8px; }

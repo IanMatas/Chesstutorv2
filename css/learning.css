@@ -285,3 +285,18 @@ body[data-learning-mode="play"] #moveList .move-entry { color: var(--text) !impo
 #freeBoard { position: relative; }
 .free-hint-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #c9d6c0; margin-top: 14px; cursor: pointer; }
 #modeDescription { display: none; }
+
+/* Import games from Lichess / Chess.com */
+.og { border: 1px solid #b9d4aa25; border-radius: 12px; background: #19231d; padding: 16px 18px; margin: 16px 0; }
+.og-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.og-form strong { margin-right: 6px; font-weight: 600; }
+.og-form select, .og-form input { background: #111a14; color: var(--text); border: 1px solid #ffffff1a; border-radius: 8px; padding: 9px 12px; font: inherit; font-size: 13px; }
+.og-form input { flex: 1; min-width: 160px; }
+.og-status { font-size: 12px; color: #a9b8ac; margin-top: 8px; }
+.og-status:empty { display: none; }
+.og-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-top: 10px; }
+.og-list:empty { display: none; }
+.og-game { display: flex; flex-direction: column; gap: 3px; text-align: left; padding: 10px 12px; border-radius: 8px; border: 1px solid #ffffff10; background: #ffffff05; color: var(--text); font: inherit; cursor: pointer; }
+.og-game:hover { border-color: #b9d4aa66; }
+.og-game span { font-size: 11px; font-weight: 700; } .og-game small { font-size: 11px; color: #91a295; }
+.og-win { color: #9fd38a; } .og-loss { color: #e8a07a; } .og-draw { color: #c9d6c0; }

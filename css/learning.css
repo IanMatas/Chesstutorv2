@@ -254,3 +254,31 @@ body[data-learning-mode="play"] #moveList .move-entry { color: var(--text) !impo
 #quickCoach > .move-why-action button { max-width:100%; white-space:normal; }
 @media(max-width:860px){ .quick-coach { grid-template-columns:1fr; position:static; }.quick-coach > div { display:block; }#quickCoach > .move-why-action { grid-column:1; grid-row:auto; max-width:none; } }
 @media(max-width:400px){#variationPreviewBanner .variation-preview-controls { grid-template-columns:repeat(2,minmax(0,1fr)); }}
+
+/* My habits dashboard */
+.hb-head h1 { font-size: 34px; letter-spacing: -.8px; margin: 8px 0; }
+.hb-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 24px 0; }
+.hb-stats > div, .hb-card, .hb-habit, .hb-insight { border: 1px solid #ffffff0d; border-radius: 12px; background: #19231d; padding: 20px; }
+.hb-stats strong { display: block; font-size: 30px; font-weight: 500; color: #deead2; }
+.hb-stats span { font-size: 12px; color: #a9b8ac; }
+.hb-good { color: #9fd38a !important; } .hb-bad { color: #e8a07a !important; } .hb-flat { color: #c9d6c0; }
+.hb-insight { border-color: #b9d4aa40; background: #1b2b20; margin-bottom: 14px; }
+.hb-insight h2 { font-size: 22px; margin: 6px 0; } .hb-insight p { color: #b6c2b7; font-size: 14px; }
+.hb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.hb-bar { display: grid; grid-template-columns: 150px 1fr 30px; align-items: center; gap: 10px; font-size: 13px; color: #b6c2b7; margin: 10px 0; }
+.hb-bar > div { height: 10px; background: #ffffff0a; border-radius: 5px; overflow: hidden; }
+.hb-bar i { display: block; height: 100%; background: #8fae7f; border-radius: 5px; }
+.hb-weak { color: #f0d9b0; } .hb-weak i { background: #e8a07a; }
+.hb-weeks { display: flex; gap: 8px; height: 140px; align-items: stretch; }
+.hb-weeks > div { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; }
+.hb-weeks i { width: 100%; min-height: 2px; background: #8fae7f; border-radius: 4px 4px 0 0; }
+.hb-weeks span { font-size: 10px; color: #91a295; }
+.hb-habits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.hb-habit-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.hb-habit strong { font-size: 16px; font-weight: 500; }
+.hb-count { font-size: 12px; color: #bbcbaf; margin: 6px 0 10px; }
+.hb-habit .btn { margin-top: 12px; font-size: 12px; padding: 8px 12px; }
+.hb-plan { list-style: decimal; margin-left: 20px; display: grid; gap: 10px; }
+.hb-plan li { font-size: 14px; color: #d7e0d7; }
+.hb-plan li > * { vertical-align: middle; } .hb-plan .btn { margin-left: 12px; font-size: 12px; padding: 6px 12px; }
+@media (max-width: 800px) { .hb-stats, .hb-grid, .hb-habits { grid-template-columns: 1fr 1fr; } .hb-grid { grid-template-columns: 1fr; } .hb-bar { grid-template-columns: 110px 1fr 24px; } }

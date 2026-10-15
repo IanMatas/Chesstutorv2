@@ -27,6 +27,7 @@
                 <button class="mode-tab" data-mode="coach" id="modeCoach" aria-pressed="false">Coach Play</button>
                 <button class="mode-tab" data-mode="review" id="modeReview" aria-pressed="false">Game review</button>
                 <button class="mode-tab" data-mode="deep-analysis" id="modeAnalysis">Learn on the board</button>
+                <button class="mode-tab" data-mode="habits" id="modeHabits" aria-pressed="false">My habits</button>
             </nav>
             <details class="study-menu" id="studyMenu">
                 <summary>Study library</summary>
@@ -228,6 +229,7 @@
                 <div class="study-next"><h2>Want a guided lesson?</h2><p>Practice attacks, defenses and sacrifices one step at a time.</p><button class="btn btn-secondary" data-study="patterns">Choose a pattern lesson</button></div>
             </section></div>
         </main>
+        <main id="habitsMode" class="learning-hub hb" hidden aria-label="My habits"></main>
         <!-- ═══════════════ GAME REVIEW ═══════════════ -->
         <main id="reviewMode" class="learning-hub tc-review" hidden aria-label="Game review">
             <header class="study-heading"><div><span class="eyebrow">LEARN FROM EVERY MOVE</span><h1>Game review</h1><p>The coach checks every move, names each mistake, and turns your key moments into practice.</p></div><div class="pattern-actions"><button class="btn btn-secondary" data-review="load">Load PGN</button></div></header>
@@ -385,6 +387,7 @@
     <script src="js/study-board.js?v=teach-v6"></script>
     <script src="js/free-play.js?v=teach-v6"></script>
     <script src="js/game-review.js?v=teach-v6"></script>
+    <script src="js/habits.js?v=teach-v6"></script>
     <script src="js/app.js?v=teach-v6"></script>
 </body>
 </html>

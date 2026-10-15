@@ -1503,7 +1503,7 @@
         _switchMode(mode) {
             if (window.learning?.session) return;
             // Keep UCI searches isolated while a move is being evaluated.
-            if (this.app.thinking && !['play', 'coach', 'puzzles', 'deep-analysis', 'patterns', 'review'].includes(mode)) return;
+            if (this.app.thinking && !['play', 'coach', 'puzzles', 'deep-analysis', 'patterns', 'review', 'habits'].includes(mode)) return;
             if (["play", "coach"].includes(this.currentMode) && window.studyBoard) window.studyBoard.sourceMode=this.currentMode;
             this.currentMode = mode;
             ChessSounds.tabSwitch();
@@ -1529,6 +1529,7 @@
             window.freePlay?.onMode(mode);
             window.studyBoard?.onMode(mode);
             window.gameReview?.onMode(mode);
+            window.habits?.onMode(mode);
             if (mode === 'deep-analysis') return;
             else if (mode === 'openings') this._renderOpeningsHub();
             else if (mode === 'midgame') this._renderMidgameHub();

@@ -7,9 +7,9 @@
     <title>Chess Tutor | AI-Powered Chess Coach</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=teach-v6">
-    <link rel="stylesheet" href="css/learning.css?v=teach-v6">
-    <link rel="stylesheet" href="css/teach.css?v=teach-v6">
+    <link rel="stylesheet" href="css/styles.css?v=teach-v7">
+    <link rel="stylesheet" href="css/learning.css?v=teach-v7">
+    <link rel="stylesheet" href="css/teach.css?v=teach-v7">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♔</text></svg>">
 </head>
 <body>
@@ -74,7 +74,7 @@
             <div class="study-layout"><section><strong id="freeState" role="status"></strong><p id="freeMessage" class="free-message" aria-live="polite"></p><div id="freeBoard" class="learning-board" aria-label="Free play board"></div>
                 <div id="freePromotion" hidden><p>Promote to:</p><button class="btn" data-free-promote="q">Queen</button><button class="btn" data-free-promote="r">Rook</button><button class="btn" data-free-promote="b">Bishop</button><button class="btn" data-free-promote="n">Knight</button></div>
                 <div class="pattern-actions"><button class="btn btn-secondary" data-free="first" aria-label="Starting position">Start</button><button class="btn btn-secondary" data-free="prev">Previous</button><button class="btn btn-secondary" data-free="next">Next →</button><button class="btn btn-secondary" data-free="last">Latest</button><button class="btn btn-secondary" data-free="flip">Flip</button></div><p id="freePosition" class="muted"></p>
-            </section><section class="free-controls"><h3>Continue from here</h3><p id="freeContinuation" class="free-message"></p><label for="freeSide">Who do you want to play?</label><select id="freeSide"><option value="both">Both sides — no bot</option><option value="w">White against the bot</option><option value="b">Black against the bot</option></select><label for="freeDifficulty" class="tc-elo-label">Bot rating (Elo) <strong id="freeEloDisplay">1500</strong></label><input type="range" id="freeDifficulty" class="rating-slider" min="400" max="3000" step="100" value="1500" aria-describedby="freeEloHint"><span id="freeEloHint" class="tc-fine">400 is a beginner, 1500 a club player, 2500+ a master.</span><button class="btn btn-primary" data-free="continue">Continue from this position</button><button class="btn btn-secondary" data-free="study">Explain this position on the study board</button><details open class="study-details"><summary>Game moves — choose any position</summary><div id="freeMoves" class="free-moves"></div></details><button id="freeOriginal" class="btn btn-secondary" data-free="original" hidden>Download original PGN</button></section></div>
+            </section><section class="free-controls"><h3>Continue from here</h3><p id="freeContinuation" class="free-message"></p><label for="freeSide">Who do you want to play?</label><select id="freeSide"><option value="both">Both sides — no bot</option><option value="w">White against the bot</option><option value="b">Black against the bot</option></select><label for="freeDifficulty" class="tc-elo-label">Bot rating (Elo) <strong id="freeEloDisplay">1500</strong></label><input type="range" id="freeDifficulty" class="rating-slider" min="400" max="3000" step="100" value="1500" aria-describedby="freeEloHint"><span id="freeEloHint" class="tc-fine">400 is a beginner, 1500 a club player, 2500+ a master.</span><button class="btn btn-primary" data-free="continue">Continue from this position</button><button class="btn btn-secondary" data-free="study">Explain this position on the study board</button><label class="free-hint-toggle"><input type="checkbox" id="freeHints" checked> Show best-move arrows</label><p id="freeHintNote" class="free-message" aria-live="polite"></p><details open class="study-details"><summary>Game moves — choose any position</summary><div id="freeMoves" class="free-moves"></div></details><button id="freeOriginal" class="btn btn-secondary" data-free="original" hidden>Download original PGN</button></section></div>
         </main>
         <dialog id="pgnDialog" class="puzzle-dialog"><div class="pgn-panel"><h2>Open a PGN game</h2><p>Choose a .pgn file or paste one game. Unfinished games work too.</p><a href="examples/study-game.pgn" download="study-game.pgn">Download an example unfinished game</a><label for="pgnFile">PGN file</label><input id="pgnFile" type="file" accept=".pgn,text/plain,application/x-chess-pgn"><label for="pgnText">Or paste PGN</label><textarea id="pgnText" rows="9" placeholder="1. e4 e5 2. Nf3 Nc6 *"></textarea><p id="pgnError" role="alert"></p><div class="pattern-actions"><button id="pgnLoad" class="btn btn-primary">Load game</button><button id="pgnClose" class="btn btn-secondary">Cancel</button></div><p class="muted">The board follows the main line. Original comments and side variations remain available in Download original PGN.</p></div></dialog>
         <!-- ═══════════════ PLAY MODE ═══════════════ -->
@@ -373,21 +373,22 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-    <script src="js/sounds.js?v=teach-v6"></script>
-    <script src="js/engine.js?v=teach-v6"></script>
-    <script src="js/coach.js?v=teach-v6"></script>
-    <script src="js/teach.js?v=teach-v6"></script>
-    <script src="js/board-view.js?v=teach-v6"></script>
-    <script src="js/coach-panel.js?v=teach-v6"></script>
-    <script src="js/trainer.js?v=teach-v6"></script>
-    <script src="js/puzzles.js?v=teach-v6"></script>
-    <script src="js/learning.js?v=teach-v6"></script>
-    <script src="js/patterns.js?v=teach-v6"></script>
-    <script src="js/move-lessons.js?v=teach-v6"></script>
-    <script src="js/study-board.js?v=teach-v6"></script>
-    <script src="js/free-play.js?v=teach-v6"></script>
-    <script src="js/game-review.js?v=teach-v6"></script>
-    <script src="js/habits.js?v=teach-v6"></script>
-    <script src="js/app.js?v=teach-v6"></script>
+    <script src="js/sounds.js?v=teach-v7"></script>
+    <script src="js/engine.js?v=teach-v7"></script>
+    <script src="js/coach.js?v=teach-v7"></script>
+    <script src="js/teach.js?v=teach-v7"></script>
+    <script src="js/board-view.js?v=teach-v7"></script>
+    <script src="js/coach-panel.js?v=teach-v7"></script>
+    <script src="js/trainer.js?v=teach-v7"></script>
+    <script src="js/puzzles.js?v=teach-v7"></script>
+    <script src="js/learning.js?v=teach-v7"></script>
+    <script src="js/patterns.js?v=teach-v7"></script>
+    <script src="js/move-lessons.js?v=teach-v7"></script>
+    <script src="js/study-board.js?v=teach-v7"></script>
+    <script src="js/free-hints.js?v=teach-v7"></script>
+    <script src="js/free-play.js?v=teach-v7"></script>
+    <script src="js/game-review.js?v=teach-v7"></script>
+    <script src="js/habits.js?v=teach-v7"></script>
+    <script src="js/app.js?v=teach-v7"></script>
 </body>
 </html>

@@ -282,3 +282,5 @@ body[data-learning-mode="play"] #moveList .move-entry { color: var(--text) !impo
 .hb-plan li { font-size: 14px; color: #d7e0d7; }
 .hb-plan li > * { vertical-align: middle; } .hb-plan .btn { margin-left: 12px; font-size: 12px; padding: 6px 12px; }
 @media (max-width: 800px) { .hb-stats, .hb-grid, .hb-habits { grid-template-columns: 1fr 1fr; } .hb-grid { grid-template-columns: 1fr; } .hb-bar { grid-template-columns: 110px 1fr 24px; } }
+#freeBoard { position: relative; }
+.free-hint-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #c9d6c0; margin-top: 14px; cursor: pointer; }

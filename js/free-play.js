@@ -558,6 +558,7 @@
         this.index < this.moves.length
           ? "Continuing here replaces later moves in your working copy. Export first to keep your current line."
           : "Continue from this position — checkmate is not required.";
+      window.freeHints?.update(this);
     }
   }
   window.FreePlay = FreePlay;

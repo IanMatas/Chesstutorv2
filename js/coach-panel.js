@@ -134,7 +134,9 @@
         </article>`;
       } else html = lessonCard(L, { actions, note, spoilerFree: state === 'paused' });
       this.set(html);
-      this.app._setAnnotations(state === 'paused' || (L.isMistake && state !== 'success') ? { fen: L.fenAfter, arrows: L.arrows, marks: L.marks } : null);
+      // After a mistake, add a green arrow for the better move next to the opponent's punishment.
+      const better = L.isMistake && L.hintSquares?.length === 2 ? [{ from: L.hintSquares[0], to: L.hintSquares[1], color: 'good' }] : [];
+      this.app._setAnnotations(state === 'paused' || (L.isMistake && state !== 'success') ? { fen: L.fenAfter, arrows: [...L.arrows, ...better], marks: L.marks } : null);
     }
 
     retry(r) {

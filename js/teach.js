@@ -244,6 +244,21 @@
   function undeveloped(game, color) {
     return Object.entries(HOME[color]).filter(([sq, t]) => { const p = game.get(sq); return p && p.color === color && p.type === t; }).length;
   }
+  // "knight on b1 and bishops on c1 and f1" — the pieces still home, by square.
+  function homeList(game, color) {
+    const by = { n: [], b: [] };
+    Object.entries(HOME[color]).forEach(([sq, t]) => { const p = game.get(sq); if (p && p.color === color && p.type === t) by[t].push(sq); });
+    const part = (t) => by[t].length ? `${NAME[t]}${by[t].length > 1 ? 's' : ''} on ${by[t].join(' and ')}` : '';
+    return [part('n'), part('b')].filter(Boolean).join(' and ');
+  }
+  function developmentWhy(fenBefore, fenAfter, move, mover, v) {
+    const left = homeList(new Chess(fenAfter), mover);
+    if (!left) return '';
+    const what = ['n', 'b'].includes(move.piece) && !HOME[mover][move.from]
+      ? `This ${NAME[move.piece]} had already left its starting square — this moves it a second time (${move.from} → ${move.to}).`
+      : `This moves a ${NAME[move.piece]} (${move.from} → ${move.to}), not a new knight or bishop.`;
+    return `${what} ${v.Pos(mover)} ${left} still haven’t moved. Bring one of those out first.`;
+  }
   function isPassed(game, sq, color) {
     const f = sq.charCodeAt(0) - 97, r = +sq[1];
     for (let df = -1; df <= 1; df++) {
@@ -535,10 +550,9 @@
     } else {
       concept = positionalConcept(fenBefore, move, best.uci);
       headline = OPENERS[concept];
-      const n = undeveloped(new Chess(fenBefore), mover);
       why = {
         'opening-queen': `${v.Pos(opp)} pieces can chase the queen and develop at the same time.`,
-        'opening-development': n ? `${v.Subj(mover)} still ${v.me === mover ? 'have' : 'has'} ${n === 1 ? 'a knight or bishop' : `${n} knights and bishops`} on ${n === 1 ? 'its starting square' : 'their starting squares'}.` : '',
+        'opening-development': developmentWhy(fenBefore, fenAfter, move, mover, v),
         'opening-castle': `${v.Pos(mover)} king is still in the center, where lines open quickly.`,
         center: 'Central squares give your pieces the most room.',
         'endgame-king': 'With fewer pieces left, the king is safe enough to be active.',

@@ -366,7 +366,7 @@
     const bestSan = best.uci ? sanOf(fenBefore, best.uci) : '';
     const replySan = replyPv[0] ? sanOf(fenAfter, replyPv[0]) : '';
     const lesson = {
-      verdict, level, mover, fenBefore, fenAfter, san: move.san, moveLabel: label(fenBefore, move.san),
+      verdict, level, mover, fenBefore, fenAfter, san: move.san, to: move.to, moveLabel: label(fenBefore, move.san),
       bestUci: best.uci || null, bestSan, bestLabel: bestSan ? label(fenBefore, bestSan) : '',
       replyUci: replyPv[0] || null, replySan, replyLabel: replySan ? label(fenAfter, replySan) : '',
       bestLine: best.pv && best.pv.length ? lineText(fenBefore, best.pv, 8) : '',
@@ -821,6 +821,10 @@
   let storage;
   try { storage = window.localStorage; storage.getItem(PROFILE_KEY); } catch (_) { storage = { getItem() { return null; }, setItem() {} }; }
 
+  // Chess.com-style move symbols.
+  const SYMBOLS = { brilliant: '!!', great: '!', best: '★', good: '✓', book: '📖', inaccuracy: '?!', mistake: '?', blunder: '??' };
+  const verdictSymbol = (verdict) => SYMBOLS[verdict] || '';
+  const badgeEl = (verdict) => Object.assign(document.createElement('span'), { className: `tc-badge tc-badge-${verdict}`, textContent: verdictSymbol(verdict), title: verdictLabel(verdict) });
   const verdictLabel = (verdict, level) => VERDICT_TEXT[verdict][level === 'beginner' ? 'beginner' : 'label'];
   // Mover's view: "+1.4", "−0.3", "mate in 3", "mated in 2".
   function formatCp(cp) {
@@ -836,7 +840,7 @@
     parse, uciOf, other, scoreOf, winChance, winPercent, moveAccuracy, classify, isMateScore, mateIn,
     boardMap, attacksFrom, attackersOf, exchangeGain, loosePieces, forkTargets, pinnedPieces, withTurn,
     trace, label, lineText, sanOf, phaseOf, effectOf, lessonFor, scan, routineNotes, narrate, opponentNote, makeVoice, bookInfo,
-    verdictLabel, formatCp, MATE,
+    verdictLabel, verdictSymbol, badgeEl, formatCp, MATE,
     profile: new Profile(storage), Profile,
   };
 })();

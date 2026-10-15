@@ -36,7 +36,7 @@
          </details>`
       : '';
     return `<article class="tc-card tc-${lesson.verdict}">
-      <header class="tc-card-head"><span class="tc-chip tc-chip-${lesson.verdict}">${esc(T().verdictLabel(lesson.verdict, level))}</span><span class="tc-move">${esc(lesson.moveLabel)}</span></header>
+      <header class="tc-card-head"><span class="tc-chip tc-chip-${lesson.verdict}"><b class="tc-sym tc-badge-${lesson.verdict}">${T().verdictSymbol(lesson.verdict)}</b>${esc(T().verdictLabel(lesson.verdict, level))}</span><span class="tc-move">${esc(lesson.moveLabel)}</span></header>
       <h3 class="tc-headline">${esc(lesson.headline)}</h3>
       ${lesson.meaning && !spoilerFree ? `<p class="tc-meaning">${esc(lesson.meaning)}</p>` : ''}
       ${lesson.better && !compact && !spoilerFree ? `<p class="tc-better"><strong>Better:</strong> ${esc(lesson.better)}</p>` : ''}
@@ -139,7 +139,8 @@
       this.set(html);
       // After a mistake, add a green arrow for the better move next to the opponent's punishment.
       const better = L.isMistake && L.hintSquares?.length === 2 ? [{ from: L.hintSquares[0], to: L.hintSquares[1], color: 'good' }] : [];
-      this.app._setAnnotations(state === 'paused' || (L.isMistake && state !== 'success') ? { fen: L.fenAfter, arrows: [...L.arrows, ...better], marks: L.marks } : null);
+      const show = state === 'paused' || (L.isMistake && state !== 'success');
+      this.app._setAnnotations({ fen: L.fenAfter, arrows: show ? [...L.arrows, ...better] : [], marks: show ? L.marks : {}, badge: L.to && { square: L.to, verdict: L.verdict } });
     }
 
     retry(r) {
@@ -171,7 +172,7 @@
       this.notes = T().routineNotes(botMd.fenAfter, app.playerColor, 'the bot');
       this.revealed = { 1: reveal, 2: reveal };
       const recap = prev && prev.isPlayer && prev.lesson
-        ? `<details class="tc-recap"${prev.lesson.isMistake ? ' open' : ''}><summary><span class="tc-chip tc-chip-${prev.lesson.verdict}">${esc(T().verdictLabel(prev.lesson.verdict, T().profile.level))}</span> Your move ${esc(prev.lesson.moveLabel)}</summary>${lessonCard(prev.lesson, { compact: !prev.lesson.isMistake })}</details>`
+        ? `<details class="tc-recap"${prev.lesson.isMistake ? ' open' : ''}><summary><span class="tc-chip tc-chip-${prev.lesson.verdict}"><b class="tc-sym tc-badge-${prev.lesson.verdict}">${T().verdictSymbol(prev.lesson.verdict)}</b>${esc(T().verdictLabel(prev.lesson.verdict, T().profile.level))}</span> Your move ${esc(prev.lesson.moveLabel)}</summary>${lessonCard(prev.lesson, { compact: !prev.lesson.isMistake })}</details>`
         : '';
       this.set(`${recap}<section class="tc-turn">
           <p class="tc-bot-note">${esc(botMd.note || `The bot played ${botMd.san}.`)}</p>

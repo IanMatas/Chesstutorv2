@@ -30,7 +30,7 @@
 
     /* fen, flipped, selected square, legal target squares, last move {from,to},
        marks {square: 'danger'|'target'|'warn'|'hint'}, arrows [{from,to,color}], disabled */
-    render({ fen, flipped = false, selected = null, legal = [], last = null, marks = {}, arrows = [], disabled = false }) {
+    render({ fen, flipped = false, selected = null, legal = [], last = null, marks = {}, arrows = [], disabled = false, badge = null }) {
       const g = new Chess(fen);
       this.flipped = flipped;
       const squares = [];
@@ -60,6 +60,7 @@
             span.append(img);
           }
           b.append(span);
+          if (badge && badge.square === sq) b.append(window.ChessTeach.badgeEl(badge.verdict));
           if (f === 0) b.append(Object.assign(document.createElement('span'), { className: 'learning-rank', textContent: rank }));
           if (r === 7) b.append(Object.assign(document.createElement('span'), { className: 'learning-file', textContent: String.fromCharCode(97 + file) }));
           squares.push(b);

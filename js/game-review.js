@@ -8,7 +8,7 @@
   const uciOf = (m) => m.from + m.to + (m.promotion || '');
   const DEPTH = 11, TIME = 800;           // first pass over every position
   const DEEP_DEPTH = 14, DEEP_TIME = 2000; // second look at every move that seems wrong
-  const SYMBOL = { inaccuracy: '?!', mistake: '?', blunder: '??' };
+  const SYMBOL = { brilliant: '!!', great: '!', inaccuracy: '?!', mistake: '?', blunder: '??' };
   const SAMPLE = '[Event "Sample game"]\n[White "White"]\n[Black "Black"]\n[Result "0-1"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bc4 Nd4 4. Nxe5 Qg5 5. Nxf7 Qxg2 6. Rf1 Qxe4+ 7. Be2 Nf3# 0-1';
 
   function bounded(promise, ms = 20000) {
@@ -188,7 +188,10 @@
         const isBest = !e0.best || e0.best === uciOf(m) || after >= before - 8;
         const verdict = T().classify(before, after, isBest), history = this.history(i);
         if (history && T().bookInfo([...history, m.san])) return { verdict: 'book', accuracy: 100 };
-        return { verdict, accuracy: T().moveAccuracy(before, after) };
+        // The lesson decides whether a best move is also Great or Brilliant.
+        let v = verdict;
+        if (verdict === 'best') { v = this.lessonAt(i).verdict; delete this.cache[i]; }
+        return { verdict: v, accuracy: T().moveAccuracy(before, after) };
       });
     }
 
@@ -440,7 +443,8 @@
           const L = this.lessonAt(i - 1);
           if (L.isMistake) { marks = L.marks; arrows = L.arrows; }
         }
-        this.board.render({ fen: g.positions[i], flipped: this.flipped, last, marks, arrows, disabled: true });
+        const badge = i > 0 && this.info[i - 1]?.verdict ? { square: g.moves[i - 1].to, verdict: this.info[i - 1].verdict } : null;
+        this.board.render({ fen: g.positions[i], flipped: this.flipped, last, marks, arrows, disabled: true, badge });
       }
       const names = { w: g.headers.White || 'White', b: g.headers.Black || 'Black' };
       const top = this.body.querySelector('[data-name="top"]'), bottom = this.body.querySelector('[data-name="bottom"]');

@@ -217,3 +217,10 @@
 .tc-meaning { font-size: 13px; line-height: 1.6; color: #c3d0c6; }
 .tc-card.tc-brilliant { --tc-accent: #26c2a3; } .tc-card.tc-great { --tc-accent: #5c9ded; }
 .tc-chip-brilliant { background: #26c2a326; color: #7fe3cf; } .tc-chip-great { background: #5c9ded26; color: #a9cdf7; }
+/* Chess.com-style move symbols */
+.tc-badge { position: absolute; top: -6%; right: -6%; z-index: 5; width: 38%; height: 38%; max-width: 30px; max-height: 30px; border-radius: 50%; display: grid; place-items: center; font: 800 12px/1 system-ui, sans-serif; color: #fff; box-shadow: 0 1px 4px #0008; pointer-events: none; }
+.tc-sym { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 3px; margin-right: 6px; border-radius: 999px; font-size: 10px; color: #fff; letter-spacing: 0; }
+.tc-badge-brilliant { background: #1baca6; } .tc-badge-great { background: #5c8bb0; } .tc-badge-best { background: #96bc4b; }
+.tc-badge-good { background: #81b64c; } .tc-badge-book { background: #a88865; } .tc-badge-inaccuracy { background: #e6a827; }
+.tc-badge-mistake { background: #e58f2a; } .tc-badge-blunder { background: #ca3431; }
+.learning-square, #chessboard [data-square] { position: relative; }

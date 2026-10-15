@@ -682,7 +682,7 @@
 
         /* Lesson annotations: arrows and highlighted squares that belong to one position */
         _setAnnotations(a) {
-            this.annotations = a && a.fen && ((a.arrows && a.arrows.length) || Object.keys(a.marks || {}).length) ? a : null;
+            this.annotations = a && a.fen && ((a.arrows && a.arrows.length) || Object.keys(a.marks || {}).length || a.badge) ? a : null;
             this._paintAnnotations();
         }
 
@@ -692,9 +692,11 @@
             const kinds = ['tc-sq-danger', 'tc-sq-target', 'tc-sq-warn', 'tc-sq-hint'];
             bd.querySelectorAll('.' + kinds.join(', .')).forEach(s => s.classList.remove(...kinds));
             this._arrowSvg.querySelectorAll('[data-arrow-id^="tc-"]').forEach(el => el.remove());
+            bd.querySelectorAll('.tc-badge').forEach(el => el.remove());
             const a = this.annotations;
             if (clearOnly || !a || this.activeVariation || this.posHistory[this.viewIndex] !== a.fen) return;
             Object.entries(a.marks || {}).forEach(([sq, kind]) => bd.querySelector(`[data-square="${sq}"]`)?.classList.add('tc-sq-' + kind));
+            if (a.badge) bd.querySelector(`[data-square="${a.badge.square}"]`)?.append(window.ChessTeach.badgeEl(a.badge.verdict));
             const colors = { danger: '#ca3431', good: '#96bc4b', info: '#5c8bb0', warn: '#e6a827' };
             (a.arrows || []).forEach((ar, i) => this._drawArrow(ar.from, ar.to, colors[ar.color] || colors.info, { id: 'tc-' + i, opacity: 0.8, width: 12 }));
         }

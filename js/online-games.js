@@ -1,4 +1,4 @@
-/* Import recent games by username from Lichess or Chess.com (public APIs, no login),
+/* Import recent games by username from Chess.com (public APIs, no login),
    then open the chosen one in Game review with your side already picked. */
 (() => {
   'use strict';
@@ -6,12 +6,6 @@
   const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const tag = (pgn, name) => (pgn.match(new RegExp(`\\[${name} "([^"]*)"\\]`)) || [])[1] || '';
 
-  async function lichess(user) {
-    const res = await fetch(`https://lichess.org/api/games/user/${encodeURIComponent(user)}?max=20&moves=true&clocks=false&evals=false`, { headers: { Accept: 'application/x-chess-pgn' } });
-    if (res.status === 404) throw Error(`No Lichess player called “${user}”.`);
-    if (!res.ok) throw Error('Lichess did not answer. Try again in a minute.');
-    return (await res.text()).split(/\n\n(?=\[Event )/).map((s) => s.trim()).filter(Boolean);
-  }
   async function chesscom(user) {
     const base = `https://api.chess.com/pub/player/${encodeURIComponent(user.toLowerCase())}/games/archives`;
     const res = await fetch(base);
@@ -35,12 +29,11 @@
       try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (_) {}
       this.el.innerHTML = `<form class="og-form">
           <strong>Import your games</strong>
-          <select id="ogSite" aria-label="Site"><option value="lichess">Lichess</option><option value="chesscom">Chess.com</option></select>
+          <span class="og-site">Chess.com</span>
           <input id="ogUser" placeholder="Username" autocomplete="off" required aria-label="Username">
           <button class="btn btn-primary" type="submit">Get my games</button>
         </form><p class="og-status" role="status"></p><div class="og-list"></div>`;
-      this.site = this.el.querySelector('#ogSite'); this.user = this.el.querySelector('#ogUser');
-      if (saved.site) this.site.value = saved.site;
+      this.user = this.el.querySelector('#ogUser');
       if (saved.user) this.user.value = saved.user;
       this.el.querySelector('form').addEventListener('submit', (e) => { e.preventDefault(); this.fetch(); });
       this.el.querySelector('.og-list').addEventListener('click', (e) => {
@@ -50,13 +43,13 @@
     }
     status(text) { this.el.querySelector('.og-status').textContent = text; }
     async fetch() {
-      const user = this.user.value.trim(), site = this.site.value;
+      const user = this.user.value.trim();
       if (!user) return;
-      try { localStorage.setItem(KEY, JSON.stringify({ site, user })); } catch (_) {}
+      try { localStorage.setItem(KEY, JSON.stringify({ user })); } catch (_) {}
       this.status('Loading your games…');
       this.el.querySelector('.og-list').innerHTML = '';
       try {
-        this.games = await (site === 'lichess' ? lichess(user) : chesscom(user));
+        this.games = await chesscom(user);
         this.name = user.toLowerCase();
         this.status(this.games.length ? `${this.games.length} recent games. Pick one to review.` : 'No standard games found for this player.');
         this.render();

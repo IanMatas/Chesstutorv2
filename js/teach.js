@@ -30,7 +30,7 @@
     if (drop <= 0) return 100;
     return Math.max(0, Math.min(100, 103.1668 * Math.exp(-0.04354 * drop) - 3.1669));
   }
-  const VERDICTS = ['best', 'good', 'inaccuracy', 'mistake', 'blunder'];
+  const VERDICTS = ['brilliant', 'great', 'best', 'good', 'inaccuracy', 'mistake', 'blunder'];
   const BAD = new Set(['inaccuracy', 'mistake', 'blunder']);
   // Scores are from the mover's perspective before and after the move.
   function classify(before, after, isBest) {
@@ -232,7 +232,9 @@
   };
   const VERDICT_TEXT = {
     book: { label: 'Book', beginner: 'Opening move' },
-    best: { label: 'Best', beginner: 'Great move!' },
+    brilliant: { label: 'Brilliant', beginner: 'Brilliant!' },
+    great: { label: 'Great', beginner: 'Great move!' },
+    best: { label: 'Best', beginner: 'Best move' },
     good: { label: 'Good', beginner: 'Good move' },
     inaccuracy: { label: 'Inaccuracy', beginner: 'Not the best' },
     mistake: { label: 'Mistake', beginner: 'Mistake' },
@@ -373,7 +375,40 @@
     };
     lesson.swing = bestCp == null || playedCp == null || isMateScore(bestCp) || isMateScore(playedCp) ? null : Math.max(0, bestCp - playedCp) / 100;
     const ctx = { move, best, bestCp, playedCp, replyPv, v, afterGame, playedUci };
-    return BAD.has(verdict) ? explainMistake(lesson, ctx) : explainGood(lesson, ctx);
+    // Brilliant: the best move, yet it leaves a piece where it can be taken — a real sacrifice.
+    // Great: the best move and it wins material or keeps a forced mate.
+    if (verdict === 'best' && !afterGame.in_checkmate()) {
+      const pt = trace(fenBefore, [playedUci, ...replyPv]);
+      const sac = move.piece !== 'p' && exchangeGain(fenAfter, move.to, other(mover)) >= 2 && pt.net >= 0;
+      if (sac) lesson.verdict = 'brilliant';
+      else if (pt.net >= 2 || (playedCp != null && playedCp >= MATE - 1000)) lesson.verdict = 'great';
+    }
+    const out = BAD.has(verdict) ? explainMistake(lesson, ctx) : explainGood(lesson, ctx);
+    out.meaning = meaningOf(out, ctx);
+    return out;
+  }
+
+  // One plain sentence: what the rating means, what the move does, and what it is for.
+  function meaningOf(lesson, { move, replyPv, v, playedUci }) {
+    const { verdict, fenBefore, mover, swing } = lesson;
+    const does = effectOf(fenBefore, move, v);
+    const lost = swing == null ? '' : swing >= 7 ? 'about as much as your queen' : swing >= 4 ? 'about as much as a rook' : swing >= 2.5 ? 'about as much as a knight or bishop' : swing >= 1.5 ? 'more than a pawn’s worth' : swing >= 0.5 ? 'about half a pawn’s worth' : 'a little';
+    // The mover's next move in the engine line shows what this move prepares.
+    const line = trace(fenBefore, [playedUci, ...replyPv]).steps;
+    const next = line[2] && line[2].move.color === mover ? line[2] : null;
+    const plan = next ? ` It prepares ${label(next.before, next.move.san)}${effectOf(next.before, next.move, v) ? `, which ${effectOf(next.before, next.move, v)}` : ''}.` : '';
+    const what = does ? ` This move ${does}.` : '';
+    switch (verdict) {
+      case 'brilliant': return `Brilliant means a clever sacrifice: the piece can be taken, but taking it gets ${v.subj(other(mover))} into trouble.${what}${plan}`;
+      case 'great': return `Great means the best move, and it wins something real (material or a forced mate).${what}${plan}`;
+      case 'best': return `Best means no move in this position is better.${what}${plan}`;
+      case 'good': return `Good means a solid move — only slightly weaker than the best.${what}${plan}`;
+      case 'book': return `Book means a well-known opening move that strong players use.${what}`;
+      case 'inaccuracy': return `Inaccuracy means not a disaster, but it gives away ${lost || 'a little'} of the advantage.${what}`;
+      case 'mistake': return `Mistake means the position gets clearly worse — it costs ${lost || 'a real part of the advantage'}.`;
+      case 'blunder': return `Blunder means a big mistake — it costs ${lost || 'a lot'}.`;
+      default: return '';
+    }
   }
 
   function explainGood(lesson, { move, replyPv, v, afterGame, playedCp, playedUci }) {
@@ -381,6 +416,7 @@
     const effect = effectOf(fenBefore, move, v);
     const pt = trace(fenBefore, [playedUci, ...replyPv]);
     const are = v.me === mover ? 'are' : 'is';
+    const top = ['best', 'great', 'brilliant'].includes(verdict);
     if (verdict === 'book') {
       const book = bookInfo([...(lesson.history || []), move.san]);
       lesson.headline = `Book move${book && book.name ? ` — ${book.name}` : ''}.`;
@@ -393,12 +429,12 @@
       lesson.headline = `${v.Subj(mover)} ${v.me === mover ? 'have' : 'has'} a forced checkmate.`;
       lesson.why = `${moveLabel} keeps it going: mate in ${mateIn(playedCp)}.`;
     } else if (pt.net >= 2) {
-      lesson.headline = `${verdict === 'best' ? 'Strong' : 'Good'} — this wins material.`;
+      lesson.headline = `${verdict === 'brilliant' ? 'Brilliant' : top ? 'Strong' : 'Good'} — this wins material.`;
       lesson.why = `${moveLabel}${effect ? ` ${effect}` : ''}. After ${lineText(fenBefore, [playedUci, ...replyPv], 5)}, ${v.subj(mover)} ${are} ahead by ${worth(pt.net)}.`;
     } else {
-      const lead = verdict === 'best' ? (lesson.level === 'beginner' ? 'Great move' : 'Best move') : 'Good move';
+      const lead = verdict === 'brilliant' ? 'Brilliant sacrifice' : verdict === 'great' ? 'Great move' : top ? 'Best move' : 'Good move';
       lesson.headline = effect ? `${lead} — it ${effect}.` : `${lead}.`;
-      lesson.why = verdict === 'best' ? `${moveLabel} matches the engine’s top choice.` : bestSan && bestSan !== move.san ? `${bestLabel} was slightly more precise.` : '';
+      lesson.why = top ? `${moveLabel} matches the engine’s top choice.` : bestSan && bestSan !== move.san ? `${bestLabel} was slightly more precise.` : '';
     }
     return finalize(lesson, null);
   }

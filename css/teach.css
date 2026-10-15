@@ -214,3 +214,6 @@
 .tc-more { margin-top: 4px; }
 .tc-more > summary { color: var(--learn-green); font-weight: 600; font-size: 13px; }
 .tc-more > * + * { margin-top: 8px; }
+.tc-meaning { font-size: 13px; line-height: 1.6; color: #c3d0c6; }
+.tc-card.tc-brilliant { --tc-accent: #26c2a3; } .tc-card.tc-great { --tc-accent: #5c9ded; }
+.tc-chip-brilliant { background: #26c2a326; color: #7fe3cf; } .tc-chip-great { background: #5c9ded26; color: #a9cdf7; }

@@ -300,3 +300,4 @@ body[data-learning-mode="play"] #moveList .move-entry { color: var(--text) !impo
 .og-game:hover { border-color: #b9d4aa66; }
 .og-game span { font-size: 11px; font-weight: 700; } .og-game small { font-size: 11px; color: #91a295; }
 .og-win { color: #9fd38a; } .og-loss { color: #e8a07a; } .og-draw { color: #c9d6c0; }
+.og-site { font-size: 13px; color: #a9b8ac; }

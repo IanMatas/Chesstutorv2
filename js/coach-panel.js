@@ -38,6 +38,7 @@
     return `<article class="tc-card tc-${lesson.verdict}">
       <header class="tc-card-head"><span class="tc-chip tc-chip-${lesson.verdict}">${esc(T().verdictLabel(lesson.verdict, level))}</span><span class="tc-move">${esc(lesson.moveLabel)}</span></header>
       <h3 class="tc-headline">${esc(lesson.headline)}</h3>
+      ${lesson.meaning && !spoilerFree ? `<p class="tc-meaning">${esc(lesson.meaning)}</p>` : ''}
       ${lesson.better && !compact && !spoilerFree ? `<p class="tc-better"><strong>Better:</strong> ${esc(lesson.better)}</p>` : ''}
       ${why || (!compact && habit) ? `<details class="tc-details tc-more"><summary>Why?</summary>
         ${why ? `<p class="tc-why">${esc(why)}</p>` : ''}

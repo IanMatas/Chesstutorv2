@@ -619,7 +619,7 @@
         const e0 = this.evals[t.ply];
         const playedCp = r ? -T().scoreOf(r) : g.in_checkmate() ? T().MATE : 0;
         const L = T().lessonFor({ fenBefore: t.fen, move: m, best: { uci: e0.best, pv: e0.pv, cp: e0.cp }, playedCp, replyPv: r ? r.pv || [] : [], me: m.color, opponent: 'your opponent', level: T().profile.level });
-        const ok = ['best', 'good'].includes(L.verdict) || (L.verdict === 'inaccuracy' && T().profile.level === 'beginner');
+        const ok = ['brilliant', 'great', 'best', 'good'].includes(L.verdict) || (L.verdict === 'inaccuracy' && T().profile.level === 'beginner');
         if (ok) { t.solved = L; ChessSounds.correct(); }
         else { t.attempts++; t.last = L; t.attempt = null; ChessSounds.wrong(); }
       } catch (error) {
